@@ -6,6 +6,8 @@ import "forge-std/Test.sol";
 import "src/GCoin.sol";
 
 contract TestGCoin is Test {
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
     GCoin c;
 
     function setUp() public {
@@ -115,11 +117,51 @@ contract TestGCoin is Test {
         );
     }
 
-    function test_Revert_Approvals() public {
+    // function test_FailApprovals() public {
+    //     c.mint(address(this), 100);
+    //     c.approve(0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f, 10);
+
+    //     vm.prank(0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f);
+    //     c.transferFrom(address(this), 0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f, 100);
+    // } // -->  this is failing
+
+    function testTransferEmits() public {
         c.mint(address(this), 100);
-        c.approve(0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f, 10);
+
+        // telling the vm we are expecting an emit
+        // (true, true, false, true) -> checks whata re the index field we want to check
+        // after c.transfer happens, whataver it emits, with that we want to comapre address(this)
+        // of  emit Transfer(
+            // address(this),
+            // 0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f,
+            // 10
+        // ); its first value?
+        // params of this event event Transfer(address indexed from, address indexed to, uint256 value);
+        // is macthed with emit Transafer here, and each parameters are compared
+        // supposed to have 1st 3 values indexed, but here here are only 1st two values, no 3rd
+        // value so, 3rd is false, and at the end 10 is calculated and compared so its true
         
+        vm.expectEmit(true, true, false, true);
+
+        // describing what emit we are supposed to recieve when c.transfer is called
+        // make sure to import transfer event from IRC20
+        emit Transfer(
+            address(this),
+            0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f,
+            10
+        );
+
+        // this emits the Trnasfec even which is caught by this test case
+        c.transfer(0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f, 10);
+    }
+
+    function testApproval() public {
+        c.mint(address(this), 100);
+        vm.expectEmit(true, true, false, true);
+        emit Approval(address(this),0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f, 10 );
+
+        c.approve(0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f, 10);
         vm.prank(0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f);
-        c.transferFrom(address(this), 0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f, 100);
+        c.transferFrom(address(this), 0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f, 0);
     }
 }
