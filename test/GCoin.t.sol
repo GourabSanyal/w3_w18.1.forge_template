@@ -48,4 +48,29 @@ contract TestGCoin is Test {
         // checks if the 1nd sender has rest of the money
         assertEq(c.balanceOf(address(this)), 75, "ok");
     }
+
+    function testApprovals() public {
+        // minted to my address
+        c.mint(address(this), 100);
+        // approved 2nd address to aceess 50 of my tokens
+        c.approve(0x904025Cfcbe81947A92501D0857F0E33267a2b4F, 50);
+
+        // check if they are allowed from my address to acess 50 tokens
+        assertEq(c.allowance(address(this), 0x904025Cfcbe81947A92501D0857F0E33267a2b4F), 50);
+        // check if I am allowed to access tokens from their address
+        assertEq(c.allowance(0x904025Cfcbe81947A92501D0857F0E33267a2b4F ,address(this)), 0);
+
+        // change the address
+        vm.prank(0x904025Cfcbe81947A92501D0857F0E33267a2b4F);   
+        // 2nd address trying to transfer to themselves (for now, this can be other address)
+        // 25 tokens from my address
+        c.transferFrom(address(this), 0x904025Cfcbe81947A92501D0857F0E33267a2b4F, 25);
+
+        // check my balance
+        assertEq(c.balanceOf(address(this)), 75, "ok");
+        // check balance of 2nd address
+        assertEq(c.balanceOf(address(0x904025Cfcbe81947A92501D0857F0E33267a2b4F)), 25, "ok");
+        // check how much allowence is lfet for them
+        assertEq(c.allowance(address(this), 0x904025Cfcbe81947A92501D0857F0E33267a2b4F), 25);
+    }
 }
