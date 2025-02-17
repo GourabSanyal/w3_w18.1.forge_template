@@ -7,7 +7,11 @@ import "src/GCoin.sol";
 
 contract TestGCoin is Test {
     event Transfer(address indexed from, address indexed to, uint256 value);
-    event Approval(address indexed owner, address indexed spender, uint256 value);
+    event Approval(
+        address indexed owner,
+        address indexed spender,
+        uint256 value
+    );
     GCoin c;
 
     function setUp() public {
@@ -132,15 +136,15 @@ contract TestGCoin is Test {
         // (true, true, false, true) -> checks whata re the index field we want to check
         // after c.transfer happens, whataver it emits, with that we want to comapre address(this)
         // of  emit Transfer(
-            // address(this),
-            // 0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f,
-            // 10
+        // address(this),
+        // 0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f,
+        // 10
         // ); its first value?
         // params of this event event Transfer(address indexed from, address indexed to, uint256 value);
         // is macthed with emit Transafer here, and each parameters are compared
         // supposed to have 1st 3 values indexed, but here here are only 1st two values, no 3rd
         // value so, 3rd is false, and at the end 10 is calculated and compared so its true
-        
+
         vm.expectEmit(true, true, false, true);
 
         // describing what emit we are supposed to recieve when c.transfer is called
@@ -158,10 +162,50 @@ contract TestGCoin is Test {
     function testApproval() public {
         c.mint(address(this), 100);
         vm.expectEmit(true, true, false, true);
-        emit Approval(address(this),0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f, 10 );
+        emit Approval(
+            address(this),
+            0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f,
+            10
+        );
 
         c.approve(0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f, 10);
         vm.prank(0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f);
-        c.transferFrom(address(this), 0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f, 0);
+        c.transferFrom(
+            address(this),
+            0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f,
+            0
+        );
+    }
+
+    function testPrank() public {
+        c.mint(address(this), 100);
+        c.transfer(0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f, 100);
+
+        vm.startPrank(0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f);
+        c.transfer(address(this), 10);
+        c.transfer(address(this), 10);
+        c.transfer(address(this), 10);
+        c.transfer(address(this), 70);
+
+        vm.stopPrank();
+
+        c.transfer(0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f, 100);
+
+        assertEq(
+            c.balanceOf(0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f),
+            100,
+            "ok"
+        );
+    }
+
+    function testDeal() public {
+        address account = 0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f;
+        uint balance = 10 ether;
+
+        // set the balance of account to 10 ether
+        vm.deal(account, balance);
+
+        // assert the balance is set correctly
+        assertEq(address(account).balance, balance);
     }
 }
