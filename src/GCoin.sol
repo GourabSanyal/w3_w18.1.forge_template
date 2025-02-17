@@ -20,4 +20,13 @@ contract GCoin is ERC20 {
         _transfer(owner, _to, _value);
         return true;
     }
+
+    function test() public payable {
+
+    }
+
+    function getBalance() public view returns (uint256) {
+        return address(this).balance;
+
+    }
 }

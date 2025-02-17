@@ -208,4 +208,11 @@ contract TestGCoin is Test {
         // assert the balance is set correctly
         assertEq(address(account).balance, balance);
     }
+
+    function testHoax() public {
+        hoax(0x587EFaEe4f308aB2795ca35A27Dff8c1dfAF9e3f, 100 ether);
+        c.test{value : 100 ether}();
+        assertEq(c.getBalance(), 100 ether, "ok");
+
+    }
 }
