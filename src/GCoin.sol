@@ -2,6 +2,7 @@
 pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {console}  from "forge-std/console.sol";
 
 contract GCoin is ERC20 {
 
@@ -10,6 +11,7 @@ contract GCoin is ERC20 {
     }
 
     function mint(address to, uint256 amount) public{
+        console.log("hey there");
         _mint(to, amount);
     }
     
